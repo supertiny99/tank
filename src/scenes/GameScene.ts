@@ -10,6 +10,7 @@ import {
   CRATES,
   FLAG_X,
   PLAYER_START,
+  groundTopAt,
 } from '../level';
 import { PlayerTank } from '../entities/PlayerTank';
 import { EnemyTank } from '../entities/EnemyTank';
@@ -130,14 +131,14 @@ export class GameScene extends Phaser.Scene {
       (e as unknown as IEnemy).control(this.player, dt);
     }
 
-    // 炮弹：手动加重力（弧线弹道）+ 朝向速度方向 + 曳光
-    const g = 260 * (dt / 1000);
+    // 炮弹：手动加重力（每发弹自带 g 值：我方 260 / 敌方 150）+ 朝向速度方向 + 曳光
+    const ks = dt / 1000;
     for (const grp of [this.pShells, this.eShells]) {
       for (const o of grp.getChildren()) {
         const s = o as Phaser.Physics.Arcade.Sprite;
         if (!s.active) continue;
         const b = s.body as Phaser.Physics.Arcade.Body;
-        b.velocity.y += g;
+        b.velocity.y += (s.getData('g') as number ?? 260) * ks;
         s.setRotation(Math.atan2(b.velocity.y, b.velocity.x));
         this.trailFx.emitParticleAt(s.x, s.y);
         if (s.y > 820 || s.x < -80 || s.x > WORLD_W + 80) s.destroy();
@@ -406,16 +407,21 @@ export class GameScene extends Phaser.Scene {
   // ---------- 对外供实体调用的工具 ----------
 
   spawnPlayerShell(x: number, y: number, a: number): void {
+    // 出膛点不允许在地表以下
+    y = Math.min(y, groundTopAt(x) - 8);
     const s = this.pShells.create(x, y, 'shellP') as Phaser.Physics.Arcade.Sprite;
     s.setDepth(8).setRotation(a);
     (s.body as Phaser.Physics.Arcade.Body).setSize(12, 8);
+    s.setData('g', 260);
     s.setVelocity(Math.cos(a) * 950, Math.sin(a) * 950);
   }
 
-  spawnEnemyShell(x: number, y: number, vx: number, vy: number): void {
+  spawnEnemyShell(x: number, y: number, vx: number, vy: number, g = 150): void {
+    y = Math.min(y, groundTopAt(x) - 8);
     const s = this.eShells.create(x, y, 'shellE') as Phaser.Physics.Arcade.Sprite;
     s.setDepth(8).setRotation(Math.atan2(vy, vx));
     (s.body as Phaser.Physics.Arcade.Body).setSize(12, 8);
+    s.setData('g', g);
     s.setVelocity(vx, vy);
   }
 

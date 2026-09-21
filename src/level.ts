@@ -57,3 +57,12 @@ export const BUNKERS: BunkerDef[] = [{ x: 1230 }, { x: 3060 }];
 export const CRATES: number[] = [1660, 4380];
 export const FLAG_X = 5040;
 export const PLAYER_START = { x: 120, y: 500 };
+
+/** x 处地表的 y 坐标（有高台时取最高的表面）；用于防止炮弹出膛点插进地里 */
+export function groundTopAt(x: number): number {
+  let top = VIEW_H;
+  for (const s of SEGS) {
+    if (x >= s.x && x <= s.x + s.w && s.top < top) top = s.top;
+  }
+  return top;
+}

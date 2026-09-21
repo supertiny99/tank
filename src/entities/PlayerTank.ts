@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { GameScene } from '../scenes/GameScene';
 import { sfx } from '../sfx';
 import { P_TURRET_ORIGIN } from '../textureFactory';
+import { groundTopAt } from '../level';
 
 export interface MoveInput {
   left: boolean;
@@ -61,10 +62,30 @@ export class PlayerTank extends Phaser.Physics.Arcade.Sprite {
       (this.scene as GameScene).dustAt(this.x, this.y + 18, 8);
     }
 
-    // 炮塔独立跟踪瞄准点（鼠标或右摇杆）
+    // 炮塔独立跟踪瞄准点（鼠标或右摇杆）。
+    // 落地时动态限制俯角：保证炮口永远在地表之上，
+    // 否则炮弹出膛即撞地自爆，看起来像"打不出子弹"。
     const ty = this.y - 7;
     if (aim) {
-      this.lastAim = Phaser.Math.Angle.Between(this.x, ty, aim.x, aim.y);
+      let na = Phaser.Math.Angle.Between(this.x, ty, aim.x, aim.y);
+      if (body.blocked.down) {
+        const side = Math.cos(na) >= 0 ? 1 : -1;
+        // 归一化俯角（正值=向下）
+        let dep = side === 1 ? na : na >= 0 ? Math.PI - na : -Math.PI - na;
+        if (dep > 0) {
+          let limit = 0;
+          for (let d = 0; d <= 50; d += 5) {
+            const r = Phaser.Math.DegToRad(d);
+            const mx = this.x + side * Math.cos(r) * 48;
+            const my = ty + Math.sin(r) * 48;
+            if (my < groundTopAt(mx) - 10) limit = r;
+            else break;
+          }
+          dep = Math.min(dep, limit);
+        }
+        na = side === 1 ? dep : dep >= 0 ? Math.PI - dep : -Math.PI - dep;
+      }
+      this.lastAim = na;
     }
     const a = this.lastAim;
     this.turret.setPosition(this.x, ty);

@@ -32,9 +32,9 @@ export class Bunker extends Phaser.Physics.Arcade.Sprite {
         scene.time.delayedCall(i * 240, () => {
           if (!this.active || !player.active) return;
           if ((this.scene as GameScene).frozen) return;
-          const v = ballistic(this.x - 44, this.y - 1, player.x, player.y - 10, 260, 660, 0.05);
+          const v = ballistic(this.x - 44, this.y - 1, player.x, player.y - 10, 150, 800, 0.05);
           if (v) {
-            (this.scene as GameScene).spawnEnemyShell(this.x - 44, this.y - 1, v.vx, v.vy);
+            (this.scene as GameScene).spawnEnemyShell(this.x - 44, this.y - 1, v.vx, v.vy, 150);
             sfx.enemyShoot();
           }
         });

@@ -45,18 +45,26 @@ export class EnemyTank extends Phaser.Physics.Arcade.Sprite {
     if (engaged) {
       body.setVelocityX(0);
       this.setFlipX(dx < 0);
-      const a = Phaser.Math.Angle.Between(this.x, ty, player.x, player.y - 10);
+      // 弹道解算：高初速 + 低重力 = 平直的炮弹轨迹（而不是迫击炮式抛物线）
+      const g = 150;
+      const speed = 800;
+      const dxT = player.x - this.x;
+      const dyT = player.y - 10 - ty;
+      const t = Math.max(Math.hypot(dxT, dyT) / speed, 0.06);
+      const vx0 = dxT / t;
+      const vy0 = dyT / t - 0.5 * g * t;
+      const aim = Math.atan2(vy0, vx0);
       this.turret.setPosition(this.x, ty);
-      this.turret.setRotation(a);
-      this.turret.setFlipY(Math.cos(a) < 0);
+      this.turret.setRotation(aim);
+      this.turret.setFlipY(Math.cos(aim) < 0);
       this.fireT -= dt / 1000;
       if (this.fireT <= 0) {
         this.fireT = Phaser.Math.FloatBetween(2.2, 3.1);
-        const mx = this.x + Math.cos(a) * 42;
-        const my = ty + Math.sin(a) * 42;
-        const v = ballistic(mx, my, player.x, player.y - 10, 260, 640, 0.06);
+        const mx = this.x + Math.cos(aim) * 42;
+        const my = ty + Math.sin(aim) * 42;
+        const v = ballistic(mx, my, player.x, player.y - 10, g, speed, 0.06);
         if (v) {
-          (this.scene as GameScene).spawnEnemyShell(mx, my, v.vx, v.vy);
+          (this.scene as GameScene).spawnEnemyShell(mx, my, v.vx, v.vy, g);
           sfx.enemyShoot();
         }
       }
