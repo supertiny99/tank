@@ -115,5 +115,32 @@ const jumpResult = await page.evaluate(() => {
 });
 await D('touchend', [{ id: 33, x: 640, y: 656 }]);
 
-console.log(JSON.stringify({ env, x0, moveResult, fireResult, dualResult, jumpResult, errors }, null, 2));
+// 5) 左摇杆上推跳跃（含斜上推边移动边跳）
+await page.waitForTimeout(600); // 等落地
+const pre = await page.evaluate(() => {
+  const s = window.__game.scene.getScene('game');
+  return { x: Math.round(s.player.x), y: Math.round(s.player.y) };
+});
+await D('touchstart', [{ id: 44, x: 250, y: 560 }]);
+await D('touchmove', [{ id: 44, x: 320, y: 470 }]); // 右上斜推
+await page.waitForTimeout(300);
+const stickJump = await page.evaluate(() => {
+  const s = window.__game.scene.getScene('game');
+  return {
+    jumpState: s.touch.state.jump,
+    moveX: +s.touch.state.moveX.toFixed(2),
+    playerX: Math.round(s.player.x),
+    playerY: Math.round(s.player.y),
+  };
+});
+// 松开回中后跳跃状态应复位
+await D('touchmove', [{ id: 44, x: 250, y: 560 }]);
+await page.waitForTimeout(120);
+const stickRelease = await page.evaluate(() => {
+  const s = window.__game.scene.getScene('game');
+  return { jumpState: s.touch.state.jump, moveX: +s.touch.state.moveX.toFixed(2) };
+});
+await D('touchend', [{ id: 44, x: 250, y: 560 }]);
+
+console.log(JSON.stringify({ env, x0, moveResult, fireResult, dualResult, jumpResult, pre, stickJump, stickRelease, errors }, null, 2));
 await browser.close();

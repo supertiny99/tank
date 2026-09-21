@@ -358,7 +358,7 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(100);
     const hint = this.touch.enabled
-      ? '左侧滑动移动 · 中间按钮跳跃 · 右侧滑动瞄准并开火'
+      ? '左侧摇杆移动 · 摇杆上推跳跃 · 右侧摇杆瞄准并开火'
       : 'A / D 移动 · W 或 空格 跳跃 · 鼠标瞄准 · 按住左键开炮 · P 暂停';
     this.add
       .text(640, 700, hint, {

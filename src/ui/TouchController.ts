@@ -30,6 +30,7 @@ export class TouchController {
   private moveStick: StickState | null = null;
   private aimStick: StickState | null = null;
   private jumpPointerId: number | null = null;
+  private stickJump = false; // 左摇杆上推触发的跳跃
 
   private moveBase!: Phaser.GameObjects.Image;
   private moveKnob!: Phaser.GameObjects.Image;
@@ -92,6 +93,7 @@ export class TouchController {
       this.aimBase.setPosition(bx, by).setVisible(true);
       this.aimKnob.setPosition(bx, by).setVisible(true).setTint(0xffffff);
     }
+    this.refresh();
   }
 
   handleMove(id: number, x: number, y: number): void {
@@ -135,6 +137,11 @@ export class TouchController {
   private refresh(): void {
     const m = this.moveStick;
     this.state.moveX = m ? Phaser.Math.Clamp(m.dx * 1.4, -1, 1) : 0;
+    // 左摇杆上推 = 跳跃（滞回触发，避免抖动；可斜推实现边移动边跳）
+    if (m && m.dy <= -0.55) this.stickJump = true;
+    else if (!m || m.dy > -0.35) this.stickJump = false;
+    this.state.jump = this.jumpPointerId !== null || this.stickJump;
+
     const a = this.aimStick;
     if (a) {
       const mag = Math.hypot(a.dx, a.dy);
