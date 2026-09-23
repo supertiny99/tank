@@ -67,13 +67,17 @@ export class MenuScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    const isTouch = this.sys.game.device.input.touch;
+    const ctrlLines = isTouch
+      ? ['左摇杆  移动        右侧 ⬆  跳跃', '右侧 🎯  开火        滑动  瞄准', '右上角 ⏸  暂停']
+      : ['A / D  移动        W / 空格  跳跃', '鼠标  瞄准        左键  开炮', 'P  暂停        R  重开'];
     this.add
-      .text(
-        840,
-        420,
-        ['A / D  移动        W / 空格  跳跃', '鼠标  瞄准        左键  开炮', 'P  暂停        R  重开'],
-        { fontFamily: FONT, fontSize: '21px', color: '#a8a294', lineSpacing: 14 },
-      )
+      .text(840, 420, ctrlLines, {
+        fontFamily: FONT,
+        fontSize: '21px',
+        color: '#a8a294',
+        lineSpacing: 14,
+      })
       .setOrigin(0.5);
 
     const start = this.add

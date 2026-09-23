@@ -15,7 +15,7 @@ const game = new Phaser.Game({
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   input: {
-    activePointers: 3, // 双摇杆 + 按钮多点触控
+    activePointers: 5, // 双摇杆 + 独立跳跃/开火按键多点触控
   },
   render: {
     roundPixels: true,

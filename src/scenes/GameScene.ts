@@ -98,6 +98,7 @@ export class GameScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     if (this.frozen) return;
     const dt = Math.min(delta, 50);
+    if (this.touch.enabled) this.touch.update(dt);
     const k = this.keys;
     const st = this.touch.state;
     let left = k.A.isDown || k.LEFT.isDown;
@@ -116,9 +117,11 @@ export class GameScene extends Phaser.Scene {
     // 瞄准优先级：右摇杆 > 鼠标；触屏设备未推瞄准杆时保持炮塔原角度
     let aim: { x: number; y: number } | null = null;
     let fireHeld = false;
-    if (this.touch.enabled && st.aimAngle !== null) {
-      const a = st.aimAngle;
-      aim = { x: this.player.x + Math.cos(a) * 300, y: this.player.y - 7 + Math.sin(a) * 300 };
+    if (this.touch.enabled) {
+      if (st.aimAngle !== null) {
+        const a = st.aimAngle;
+        aim = { x: this.player.x + Math.cos(a) * 300, y: this.player.y - 7 + Math.sin(a) * 300 };
+      }
       fireHeld = st.firing;
     } else if (!this.input.activePointer.wasTouch) {
       const p = this.input.activePointer;
@@ -358,7 +361,7 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(100);
     const hint = this.touch.enabled
-      ? '左侧摇杆移动 · 摇杆上推跳跃 · 右侧摇杆瞄准并开火'
+      ? '左摇杆移动 · ⬆ 跳跃 · 🎯 开火 / 滑动瞄准'
       : 'A / D 移动 · W 或 空格 跳跃 · 鼠标瞄准 · 按住左键开炮 · P 暂停';
     this.add
       .text(640, 700, hint, {

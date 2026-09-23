@@ -422,4 +422,20 @@ export function createTextures(scene: Phaser.Scene): void {
     g.fillRoundedRect(22, 18, 8, 28, 3);
     g.fillRoundedRect(34, 18, 8, 28, 3);
   });
+
+  gfxTex('btnFire', 116, 116, (g) => {
+    g.fillStyle(0x0e1420, 0.45);
+    g.fillCircle(58, 58, 56);
+    g.lineStyle(3, 0xff6b4a, 0.9);
+    g.strokeCircle(58, 58, 53);
+    g.lineStyle(2, 0xffa94d, 0.75);
+    g.strokeCircle(58, 58, 26);
+    g.fillStyle(0xff6b4a, 0.95);
+    g.fillRect(56, 16, 4, 12);
+    g.fillRect(56, 88, 4, 12);
+    g.fillRect(16, 56, 12, 4);
+    g.fillRect(88, 56, 12, 4);
+    g.fillStyle(0xff8787, 0.95);
+    g.fillCircle(58, 58, 9);
+  });
 }
